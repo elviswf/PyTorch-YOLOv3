@@ -1,22 +1,16 @@
-from __future__ import division
-
-from models import *
-from utils.utils import *
-from utils.datasets import *
-
 import os
-import sys
+import numpy as np
 import time
 import datetime
 import argparse
-
-from PIL import Image
-
 import torch
 from torch.utils.data import DataLoader
-from torchvision import datasets
+import cv2
 from torch.autograd import Variable
-
+from models import Darknet
+from utils.utils import load_classes, non_max_suppression, rescale_boxes
+from utils.datasets import ImageFolder
+import random
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.ticker import NullLocator
@@ -93,12 +87,14 @@ if __name__ == "__main__":
 
     print("\nSaving images:")
     # Iterate through images and save plot of detections
-    for img_i, (path, detections) in enumerate(zip(imgs, img_detections)):
+    for img_i, (image_path, detections) in enumerate(zip(imgs, img_detections)):
 
-        print("(%d) Image: '%s'" % (img_i, path))
+        print("(%d) Image: '%s'" % (img_i, image_path))
 
         # Create plot
-        img = np.array(Image.open(path))
+        img = cv2.imread(image_path)
+        # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = np.array(img)
         plt.figure()
         fig, ax = plt.subplots(1)
         ax.imshow(img)
@@ -111,7 +107,6 @@ if __name__ == "__main__":
             n_cls_preds = len(unique_labels)
             bbox_colors = random.sample(colors, n_cls_preds)
             for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
-
                 print("\t+ Label: %s, Conf: %.5f" % (classes[int(cls_pred)], cls_conf.item()))
 
                 box_w = x2 - x1
@@ -136,6 +131,6 @@ if __name__ == "__main__":
         plt.axis("off")
         plt.gca().xaxis.set_major_locator(NullLocator())
         plt.gca().yaxis.set_major_locator(NullLocator())
-        filename = path.split("/")[-1].split(".")[0]
+        filename = image_path.split("/")[-1].split(".")[0]
         plt.savefig(f"output/{filename}.png", bbox_inches="tight", pad_inches=0.0)
         plt.close()

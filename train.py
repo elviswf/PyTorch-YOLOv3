@@ -1,26 +1,18 @@
-from __future__ import division
-
-from models import *
-from utils.logger import *
-from utils.utils import *
-from utils.datasets import *
-from utils.parse_config import *
-from test import evaluate
-
-from terminaltables import AsciiTable
-
 import os
-import sys
 import time
 import datetime
 import argparse
+from terminaltables import AsciiTable
 
+from models import Darknet
+from utils.logger import Logger
+from utils.utils import load_classes, weights_init_normal
+from utils.datasets import ListDataset
+from utils.parse_config import parse_data_config
+from test import evaluate
 import torch
 from torch.utils.data import DataLoader
-from torchvision import datasets
-from torchvision import transforms
 from torch.autograd import Variable
-import torch.optim as optim
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
